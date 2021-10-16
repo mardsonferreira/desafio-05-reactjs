@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { FiCalendar, FiUser } from 'react-icons/fi';
@@ -31,13 +32,42 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
+// TODO move to utils
+function formatPosts(posts: PostPagination): Post[] {
+  const formattedPosts = posts.results.map(post => {
+    return {
+      uid: post.uid,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
+      data: {
+        title: RichText.asText(post.data.title),
+        subtitle: RichText.asText(post.data.subtitle),
+        author: RichText.asText(post.data.author),
+      },
+    };
+  });
+
+  return formattedPosts;
+}
+
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [nextPage, setNextPage] = useState<string>(postsPagination.next_page);
+
   async function loadMorePosts(): Promise<void> {
-    const response = await fetch(postsPagination.next_page);
+    const response = await fetch(nextPage);
 
     const data = await response.json();
 
-    console.log(data);
+    const newPosts = formatPosts(data);
+
+    setPosts([...posts, ...newPosts]);
+    setNextPage(data.next_page);
   }
 
   return (
@@ -46,9 +76,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
         <title>Home | spacetraveling</title>
       </Head>
 
-      <main className={styles.container}>
+      <main className={commonStyles.container}>
         <div className={styles.posts}>
-          {postsPagination.results.map(post => (
+          {posts.map(post => (
             <a key={post.uid}>
               <strong>{post.data.title}</strong>
               <p>{post.data.subtitle}</p>
@@ -65,9 +95,15 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </a>
           ))}
         </div>
-        <button type="button" onClick={loadMorePosts}>
-          Carregar mais posts
-        </button>
+        {Boolean(nextPage) && (
+          <button
+            className={styles.loadMore}
+            type="button"
+            onClick={loadMorePosts}
+          >
+            Carregar mais posts
+          </button>
+        )}
       </main>
     </>
   );
@@ -87,23 +123,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const { next_page } = postsResponse;
 
-  const posts = postsResponse.results.map(post => {
-    return {
-      uid: post.uid,
-      first_publication_date: format(
-        new Date(post.first_publication_date),
-        'dd MMM yyyy',
-        {
-          locale: ptBR,
-        }
-      ),
-      data: {
-        title: RichText.asText(post.data.title),
-        subtitle: RichText.asText(post.data.subtitle),
-        author: RichText.asText(post.data.author),
-      },
-    };
-  });
+  const posts = formatPosts(postsResponse);
 
   const postsPagination = {
     next_page,
