@@ -3,6 +3,8 @@ import Head from 'next/head';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
 import { RichText } from 'prismic-dom';
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -30,6 +32,14 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  async function loadMorePosts(): Promise<void> {
+    const response = await fetch(postsPagination.next_page);
+
+    const data = await response.json();
+
+    console.log(data);
+  }
+
   return (
     <>
       <Head>
@@ -55,6 +65,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </a>
           ))}
         </div>
+        <button type="button" onClick={loadMorePosts}>
+          Carregar mais posts
+        </button>
       </main>
     </>
   );
@@ -67,14 +80,23 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.predicates.at('document.type', 'post')],
     {
       fetch: ['title', 'subtitle', 'author'],
-      pageSize: 100,
+      pageSize: 1,
+      page: 1,
     }
   );
+
+  const { next_page } = postsResponse;
 
   const posts = postsResponse.results.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: post.first_publication_date,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
       data: {
         title: RichText.asText(post.data.title),
         subtitle: RichText.asText(post.data.subtitle),
@@ -84,7 +106,7 @@ export const getStaticProps: GetStaticProps = async () => {
   });
 
   const postsPagination = {
-    next_page: 2,
+    next_page,
     results: posts,
   };
 
