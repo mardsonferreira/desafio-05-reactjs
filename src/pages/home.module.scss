@@ -30,4 +30,20 @@
       line-height: 1.625rem;
     }
   }
+
+  .postInfo {
+    display: flex;
+    align-items: center;
+
+    color: var(--info);
+
+    margin-top: 1rem;
+    gap: 2rem;
+
+    div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
 }
