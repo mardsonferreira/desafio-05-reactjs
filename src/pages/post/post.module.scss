@@ -1,1 +1,60 @@
-// TODO
+.banner {
+  width: 100%;
+  background: var(--body);
+  height: 25rem;
+  background-position: center;
+  background-size: cover;
+
+  margin-bottom: 5rem;
+}
+
+.post {
+  h1 {
+    font-size: 3rem;
+    font-weight: 600;
+  }
+
+  .postInfo {
+    display: flex;
+    align-items: center;
+
+    color: var(--info);
+
+    margin-top: 1rem;
+    gap: 2rem;
+
+    div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .sectionContent {
+    margin-top: 2rem;
+    line-height: 2rem;
+    font-size: 1.125rem;
+    color: var(--heading);
+
+    p,
+    ul {
+      margin: 1.5rem 0;
+    }
+
+    ul {
+      padding-left: 1.5rem;
+
+      li {
+        margin: 0.5rem 0;
+      }
+    }
+
+    a {
+      color: var(--highlight);
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

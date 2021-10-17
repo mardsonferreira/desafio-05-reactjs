@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
 import { RichText } from 'prismic-dom';
@@ -73,26 +74,28 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   return (
     <>
       <Head>
-        <title>Home | spacetraveling</title>
+        <title>Home | Space Traveling</title>
       </Head>
 
       <main className={commonStyles.container}>
         <div className={styles.posts}>
           {posts.map(post => (
-            <a key={post.uid}>
-              <strong>{post.data.title}</strong>
-              <p>{post.data.subtitle}</p>
-              <div className={styles.postInfo}>
-                <div>
-                  <FiCalendar size={22} />
-                  <time>{post.first_publication_date}</time>
+            <Link key={post.uid} href={`post/${post.uid}`}>
+              <a>
+                <strong>{post.data.title}</strong>
+                <p>{post.data.subtitle}</p>
+                <div className={styles.postInfo}>
+                  <div>
+                    <FiCalendar size={22} />
+                    <time>{post.first_publication_date}</time>
+                  </div>
+                  <div>
+                    <FiUser size={22} />
+                    <span>{post.data.author}</span>
+                  </div>
                 </div>
-                <div>
-                  <FiUser size={22} />
-                  <span>{post.data.author}</span>
-                </div>
-              </div>
-            </a>
+              </a>
+            </Link>
           ))}
         </div>
         {Boolean(nextPage) && (
