@@ -4,8 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
-import { RichText } from 'prismic-dom';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
 import { getPrismicClient } from '../services/prismic';
@@ -38,17 +37,11 @@ function formatPosts(posts: PostPagination): Post[] {
   const formattedPosts = posts.results.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: format(
-        new Date(post.first_publication_date),
-        'dd MMM yyyy',
-        {
-          locale: ptBR,
-        }
-      ),
+      first_publication_date: post.first_publication_date,
       data: {
-        title: RichText.asText(post.data.title),
-        subtitle: RichText.asText(post.data.subtitle),
-        author: RichText.asText(post.data.author),
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
       },
     };
   });
@@ -59,6 +52,12 @@ function formatPosts(posts: PostPagination): Post[] {
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
   const [nextPage, setNextPage] = useState<string>(postsPagination.next_page);
+
+  function formatDate(date: string): string {
+    return format(parseISO(date), 'dd MMM yyyy', {
+      locale: ptBR,
+    });
+  }
 
   async function loadMorePosts(): Promise<void> {
     const response = await fetch(nextPage);
@@ -87,7 +86,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
                 <div className={styles.postInfo}>
                   <div>
                     <FiCalendar size={22} />
-                    <time>{post.first_publication_date}</time>
+                    <time>{formatDate(post.first_publication_date)}</time>
                   </div>
                   <div>
                     <FiUser size={22} />
