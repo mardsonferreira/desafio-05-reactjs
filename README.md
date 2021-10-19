@@ -2,12 +2,8 @@
 
 This challenge consists of implementing a blog. The interface was provided a priori and all posts are fetched via an external API.
 
-Application Template
-
-[](https://github.com/rocketseat-education/ignite-template-reactjs-criando-um-projeto-do-zero)
-
 <p align="center">
-  <img src="https://github.com/mardsonferreira/desafio-05-reactjs/blob/main/.github/preview.png" />
+  <img src="https://github.com/mardsonferreira/desafio-05-reactjs/blob/master/.github/preview.png" />
 </p>
 
 <h2>:hammer: Technologies</h2>
