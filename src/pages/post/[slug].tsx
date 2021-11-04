@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import Prismic from '@prismicio/client';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { RichText } from 'prismic-dom';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
@@ -15,6 +17,7 @@ import styles from './post.module.scss';
 interface Post {
   uid?: string;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     subtitle: string;
@@ -31,12 +34,27 @@ interface Post {
   };
 }
 
-interface PostProps {
-  post: Post;
+interface PartialPost {
+  uid: string;
+  title: string;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+interface PostProps {
+  post: Post;
+  prevPost: PartialPost | null;
+  nextPost: PartialPost | null;
+}
+
+export default function Post({
+  post,
+  prevPost,
+  nextPost,
+}: PostProps): JSX.Element {
   const router = useRouter();
+
+  const isEditedPost = useMemo(() => {
+    return post.last_publication_date !== post.first_publication_date;
+  }, [post]);
 
   if (router.isFallback) {
     return <p>Carregando...</p>;
@@ -91,6 +109,28 @@ export default function Post({ post }: PostProps): JSX.Element {
               <time>{readingTime}</time>
             </div>
           </div>
+          {isEditedPost && (
+            <div className={styles.postEdited}>
+              <span>
+                * editado em{' '}
+                <time>
+                  {format(new Date(post.last_publication_date), 'dd MMM yyyy', {
+                    locale: ptBR,
+                  })}
+                </time>
+                , às{' '}
+                <time>
+                  {format(
+                    new Date(post.last_publication_date),
+                    `${'HH'}:${'mm'}`,
+                    {
+                      locale: ptBR,
+                    }
+                  )}
+                </time>
+              </span>
+            </div>
+          )}
 
           {post.data.content.map(section => (
             <section key={section.heading} className={styles.sectionContent}>
@@ -105,6 +145,30 @@ export default function Post({ post }: PostProps): JSX.Element {
             </section>
           ))}
         </article>
+
+        <footer className={styles.footer}>
+          <div>
+            {prevPost && (
+              <>
+                <span>{prevPost.title}</span>
+                <Link href={`/post/${prevPost.uid}`}>
+                  <a>Post anterior</a>
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div>
+            {nextPost && (
+              <>
+                <span>{nextPost.title}</span>
+                <Link href={`/post/${nextPost.uid}`}>
+                  <a>Próximo post</a>
+                </Link>
+              </>
+            )}
+          </div>
+        </footer>
       </main>
     </>
   );
@@ -146,9 +210,30 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   }
 
+  const prevPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'post')],
+    {
+      fetch: ['title'],
+      pageSize: 1,
+      orderings: '[document.first_publication_date desc]',
+      after: response.id,
+    }
+  );
+
+  const nextPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'post')],
+    {
+      fetch: ['title'],
+      pageSize: 1,
+      orderings: '[document.first_publication_date]',
+      after: response.id,
+    }
+  );
+
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -168,6 +253,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post,
+      prevPost:
+        prevPost.results && prevPost.results.length
+          ? {
+              uid: prevPost.results[0].uid,
+              title: prevPost.results[0].data.title,
+            }
+          : null,
+      nextPost:
+        nextPost.results && nextPost.results.length
+          ? {
+              uid: nextPost.results[0].uid,
+              title: nextPost.results[0].data.title,
+            }
+          : null,
     },
     revalidate: 60 * 30, // 30 minutes
   };

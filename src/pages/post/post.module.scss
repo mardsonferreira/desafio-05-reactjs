@@ -57,4 +57,38 @@
       }
     }
   }
+
+  .postEdited {
+    margin-top: 1rem;
+
+    span {
+      font-size: 0.875rem;
+      font-style: italic;
+      color: var(--info);
+    }
+  }
+
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.5rem;
+
+    a {
+      color: var(--highlight);
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  margin-bottom: 3rem;
 }
