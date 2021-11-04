@@ -10,6 +10,12 @@ export default class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
             rel="stylesheet"
           />
+
+          <script
+            async
+            defer
+            src="https://static.cdn.prismic.io/prismic.js?new=true&repo=desafio-05-reactjs"
+          />
         </Head>
         <body>
           <Main />

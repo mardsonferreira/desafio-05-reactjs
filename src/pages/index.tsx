@@ -30,6 +30,7 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
+  preview: boolean;
 }
 
 // TODO move to utils
@@ -49,7 +50,10 @@ function formatPosts(posts: PostPagination): Post[] {
   return formattedPosts;
 }
 
-export default function Home({ postsPagination }: HomeProps): JSX.Element {
+export default function Home({
+  postsPagination,
+  preview,
+}: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
   const [nextPage, setNextPage] = useState<string>(postsPagination.next_page);
 
@@ -86,7 +90,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
                 <div className={styles.postInfo}>
                   <div>
                     <FiCalendar size={22} />
-                    <time>{formatDate(post.first_publication_date)}</time>
+                    {post.first_publication_date && (
+                      <time>{formatDate(post.first_publication_date)}</time>
+                    )}
                   </div>
                   <div>
                     <FiUser size={22} />
@@ -106,20 +112,31 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             Carregar mais posts
           </button>
         )}
+
+        {preview && (
+          <aside className={styles.preview}>
+            <Link href="/api/exit-preview">
+              <a>Sair do modo Preview</a>
+            </Link>
+          </aside>
+        )}
       </main>
     </>
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps<HomeProps> = async ({
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
 
   const postsResponse = await prismic.query(
     [Prismic.predicates.at('document.type', 'post')],
     {
       fetch: ['title', 'subtitle', 'author'],
-      pageSize: 1,
-      page: 1,
+      pageSize: 3,
+      ref: previewData?.ref ?? null,
     }
   );
 
@@ -135,6 +152,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       postsPagination,
+      preview,
     },
   };
 };
