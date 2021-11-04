@@ -56,19 +56,21 @@ export default function Post({
     return post.last_publication_date !== post.first_publication_date;
   }, [post]);
 
+  const readingTime = useMemo(() => {
+    const totalWords = post.data.content.reduce((acc, content) => {
+      acc += content.heading.split(/\s+/).length;
+
+      acc += RichText.asText(content.body).split(/\s+/).length;
+
+      return acc;
+    }, 0);
+
+    return `${Math.ceil(totalWords / 200).toString()} min`;
+  }, [post]);
+
   if (router.isFallback) {
     return <p>Carregando...</p>;
   }
-
-  const totalWords = post.data.content.reduce((acc, content) => {
-    acc += content.heading.split(/\s+/).length;
-
-    acc += RichText.asText(content.body).split(/\s+/).length;
-
-    return acc;
-  }, 0);
-
-  const readingTime = `${Math.ceil(totalWords / 200).toString()} min`;
 
   const formattedDate = format(
     parseISO(post.first_publication_date),
