@@ -14,6 +14,8 @@ import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
+import UtterancesComments from '../../components/UtterancesComments';
+
 interface Post {
   uid?: string;
   first_publication_date: string | null;
@@ -171,6 +173,8 @@ export default function Post({
             )}
           </div>
         </footer>
+
+        <UtterancesComments />
       </main>
     </>
   );
