@@ -14,6 +14,7 @@ This challenge consists of implementing a blog. The interface was provided a pri
   <li> <a href="https://reactjs.org/"> React </a> </li>
   <li> <a href="https://nextjs.org/"> Next.js </a> </li>
   <li> <a href="https://prismic.io/"> Prismic </a> </li>
+  <li> <a href="https://utteranc.es/"> Utterances </a> </li>
 </ul>
 
 <h2>:pencil: How to use</h2>
